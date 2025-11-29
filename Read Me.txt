@@ -1,0 +1,10 @@
+Connection : mongodb://localhost:27017/
+
+DB Name : TechByteDB
+Collection Name :
+ContactMessages
+Items
+OrderSequences
+Purchases
+Transactions
+Users
