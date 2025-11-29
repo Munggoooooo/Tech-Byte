@@ -1,0 +1,79 @@
+﻿@page
+@model Tech_Byte.Pages.Account.ProfileModel
+@using Tech_Byte.Models
+@{
+    ViewData["Title"] = "User Profile";
+}
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize(Roles = "Admin,Member")]
+
+<div class="container mt-5">
+    <h2 class="mb-4">My Profile</h2>
+
+    @if (Model.CurrentUser != null)
+    {
+        <div class="card shadow-sm">
+            <div class="card-body">
+
+                <h4 class="mb-3">Hello, @Model.CurrentUser.Name!</h4>
+
+                <table class="table table-striped">
+                    <tbody>
+                        <tr>
+                            <th>Name</th>
+                            <td>@Model.CurrentUser.Name</td>
+                        </tr>
+
+                        <tr>
+                            <th>Username</th>
+                            <td>@Model.CurrentUser.Username</td>
+                        </tr>
+
+                        <tr>
+                            <th>Email</th>
+                            <td>@Model.CurrentUser.Email</td>
+                        </tr>
+
+                        <tr>
+                            <th>Role</th>
+                            <td>@Model.CurrentUser.Role</td>
+                        </tr>
+
+                        <tr>
+                            <th>Contact</th>
+                            <td>@Model.CurrentUser.Contact</td>
+                        </tr>
+
+                        <tr>
+                            <th>Address</th>
+                            <td>@Model.CurrentUser.Address</td>
+                        </tr>
+
+                        <tr>
+                            <th>Account Activated</th>
+                            <td>
+                                @if (Model.CurrentUser.IsActivated)
+                                {
+                                    <span class="badge bg-success">Activated</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-danger">Not Activated</span>
+                                }
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="text-end">
+                    <a class="btn btn-primary" style="display: none;">Edit Profile</a>
+                </div>
+
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-warning">Unable to load your profile information.</div>
+    }
+</div>

@@ -1,0 +1,228 @@
+﻿@page
+@model Tech_Byte.Pages.Dashboard.AccountsModel
+@{
+    ViewData["Title"] = "Dashboard";
+}
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize(Roles = "Admin")]
+
+@if (TempData["AccountCreationSuccess"] != null)
+{
+    <script>
+        alert('@TempData["AccountCreationSuccess"]');
+    </script>
+}
+@if (TempData["AccountUpdateSuccess"] != null)
+{
+    <script>
+        alert('@TempData["AccountUpdateSuccess"]');
+    </script>
+}
+@if (TempData["AccountDeleteSuccess"] != null)
+{
+    <script>
+        alert('@TempData["AccountDeleteSuccess"]');
+    </script>
+}
+
+<div class="container my-5">
+    <h2 class="my-4">Manage User Accounts</h2>
+
+    <div class="container">
+        <div class="row d-flex justify-content-between align-items-center" style="padding: 0;">
+            <div class="col-auto">
+                <button class="btn btn-primary mb-3"
+                        data-bs-toggle="modal"
+                        data-bs-target="#createUserModal">
+                    + Add User
+                </button>
+            </div>
+            <div class="col-auto">
+                <!-- Search Form -->
+                <form id="searchForm" method="get" class="d-flex align-items-center" onsubmit="showSearchResultMessage();">
+                    <button class="btn btn-primary me-2">Search</button>
+                    <input type="text" id="accountSearch" name="search" value="@Request.Query["search"]" class="form-control" placeholder="Search users..." />
+                    @if (!string.IsNullOrEmpty(Model.SearchTerm) || !string.IsNullOrEmpty(Request.Query["category"].ToString()))
+                    {
+                        <a href="/Dashboard/Accounts" class="btn btn-secondary ms-2">Clear Filter</a>
+                    }
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <table class="table table-striped text-center align-middle">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Username</th>
+                <th>Email</th>
+                <th>Role</th>
+                <th>Contact</th>
+                <th>Address</th>
+                <th>Activation</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            @foreach (var user in Model.Users)
+            {
+                <tr>
+                    <td>@user.Name</td>
+                    <td>@user.Username</td>
+                    <td>@user.Email</td>
+                    <td>@user.Role</td>
+                    <td>@user.Contact</td>
+                    <td>@user.Address</td>
+                    <td>@(user.IsActivated ? "Activated" : user.IsActivated)</td>
+                    <td>
+                        <button class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#editUserModal"
+                                data-id="@user.Id"
+                                data-name="@user.Name"
+                                data-username="@user.Username"
+                                data-email="@user.Email"
+                                data-role="@user.Role"
+                                data-contact="@user.Contact"
+                                data-address="@user.Address">
+                            Edit
+                        </button>
+
+                        <button class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteUserModal"
+                                data-id="@user.Id"
+                                data-name="@user.Name">
+                            Delete
+                        </button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+            <!-- Create User Modal -->
+            <div class="modal fade" id="createUserModal" tabindex="-1" aria-labelledby="createUserModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <form method="post" asp-page-handler="CreateUser">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="createUserModalLabel">Create User</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <input type="text" name="Name" class="form-control mb-2" placeholder="Full Name" required />
+                                <input type="text" name="Username" class="form-control mb-2" placeholder="Username" required />
+                                <input type="email" name="Email" class="form-control mb-2" placeholder="Email" required />
+                                <input type="password" name="Password" class="form-control mb-2" placeholder="Password" required />
+                                <select name="Role" class="form-select mb-2" required>
+                                    <option value="Member">Member</option>
+                                    <option value="Admin">Admin</option>
+                                </select>
+                                <input type="text" name="Contact" class="form-control mb-2" placeholder="Contact" />
+                                <input type="text" name="Address" class="form-control mb-2" placeholder="Address" />
+                            </div>
+                            <div class="modal-footer">
+                                <button type="submit" class="btn btn-primary">Create</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Edit User Modal -->
+            <div class="modal fade" id="editUserModal" tabindex="-1" aria-labelledby="editUserModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <form method="post" asp-page-handler="EditUser">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="editUserModalLabel">Edit User</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <input type="hidden" name="Id" id="editUserId" />
+                                <input type="text" name="Name" id="editUserName" class="form-control mb-2" placeholder="Full Name" required />
+                                <input type="text" name="Username" id="editUserUsername" class="form-control mb-2" placeholder="Username" required />
+                                <input type="email" name="Email" id="editUserEmail" class="form-control mb-2" placeholder="Email" required />
+                                <select name="Role" id="editUserRole" class="form-select mb-2" required>
+                                    <option value="Member">Member</option>
+                                    <option value="Admin">Admin</option>
+                                </select>
+                                <input type="text" name="Contact" id="editUserContact" class="form-control mb-2" placeholder="Contact" />
+                                <input type="text" name="Address" id="editUserAddress" class="form-control mb-2" placeholder="Address" />
+                            </div>
+                            <div class="modal-footer">
+                                <button type="submit" class="btn btn-primary">Save Changes</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Delete User Modal -->
+            <div class="modal fade" id="deleteUserModal" tabindex="-1" aria-labelledby="deleteUserModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <form method="post" asp-page-handler="DeleteUser">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="deleteUserModalLabel">Delete User</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <input type="hidden" name="Id" id="deleteUserId" />
+                                <p>Are you sure you want to delete the user <strong id="deleteUserName"></strong>?</p>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="submit" class="btn btn-danger">Delete</button>
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+
+<!-- JavaScript to populate modals dynamically -->
+<script>
+    // Edit User Modal
+    const editUserModal = document.getElementById('editUserModal');
+    editUserModal.addEventListener('show.bs.modal', function (event) {
+        const button = event.relatedTarget; // Button that triggered the modal
+        document.getElementById('editUserId').value = button.getAttribute('data-id');
+        document.getElementById('editUserName').value = button.getAttribute('data-name');
+        document.getElementById('editUserUsername').value = button.getAttribute('data-username');
+        document.getElementById('editUserEmail').value = button.getAttribute('data-email');
+        document.getElementById('editUserRole').value = button.getAttribute('data-role');
+        document.getElementById('editUserContact').value = button.getAttribute('data-contact');
+        document.getElementById('editUserAddress').value = button.getAttribute('data-address');
+    });
+
+    // Delete User Modal
+    const deleteUserModal = document.getElementById('deleteUserModal');
+    deleteUserModal.addEventListener('show.bs.modal', function (event) {
+        const button = event.relatedTarget; // Button that triggered the modal
+        document.getElementById('deleteUserId').value = button.getAttribute('data-id');
+        document.getElementById('deleteUserName').innerText = button.getAttribute('data-name');
+    });
+</script>
+
+<script>
+    const searchInput = document.getElementById("accountSearch");
+    const table = document.querySelector("table tbody");
+    const rows = table.querySelectorAll("tr");
+
+    function filterTable(filterText) {
+        const filter = filterText.toLowerCase();
+        rows.forEach(row => {
+            const rowText = Array.from(row.cells).map(cell => cell.textContent.toLowerCase()).join(" ");
+            row.style.display = rowText.includes(filter) ? "" : "none";
+        });
+    }
+
+    // Apply initial search term if any
+    filterTable(searchInput.value);
+
+    // Real-time filtering
+    searchInput.addEventListener("input", () => {
+        filterTable(searchInput.value);
+    });
+</script>

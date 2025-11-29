@@ -1,0 +1,268 @@
+﻿@page
+@model Tech_Byte.Pages.ContactUsModel
+@{
+    ViewData["Title"] = "About Us";
+}
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize(Roles = "Admin,Member")]
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-pVnD4zDkz0e6rZvj+QzFJZKTTnXJr4LZ9QvvRv3H3+h5ZiwjD+OQGcvKj9Wa5oVwJhScTRnT9+RXYKXYl1hxgg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<style>
+    .logo {
+        width: 75px;
+        margin-bottom: 10px;
+    }
+
+    .logobig {
+        width: 200px;
+        margin-bottom: 10px;
+    }
+
+    .logoposition {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .brand {
+        font-weight: 1000;
+    }
+
+    h1 {
+        font-size: 28px;
+        margin-bottom: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .subtitle {
+        color: #666;
+        margin-bottom: 25px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    form {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    input {
+        padding: 14px;
+        border-radius: 10px;
+        border: 1px solid #ddd;
+        font-size: 15px;
+    }
+
+    .message-btn {
+        background: black;
+        color: white;
+        padding: 14px;
+        border-radius: 10px;
+        border: none;
+        font-size: 16px;
+        cursor: pointer;
+        margin-top: 10px;
+    }
+
+    .message-btn:hover {
+        background: white;
+        color: black;
+        border: 1px solid black;
+        transition: 0.25s ease;
+    }
+
+    .social-login {
+        display: flex;
+        justify-content: center;
+        gap: 12px;
+        margin-bottom: 25px;
+    }
+
+    .social-login button {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        border: 1px solid #ddd;
+        background: white;
+        font-size: 18px;
+        cursor: pointer;
+    }
+
+    .social-login button:hover {
+        background: black;
+        color: white;
+        border-color: black;
+        transition: 0.25s ease;
+    }
+
+    .services {
+        display: flex;
+        justify-content: space-around;
+        gap: 30px;
+        flex-wrap: wrap;
+    }
+
+    .service {
+        text-align: center;
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        padding: 20px;
+        width: 250px;
+    }
+
+     .service i {
+        width: 100%;
+        height: auto;
+        border-radius: 50%;
+        margin-bottom: 20px;
+       }
+
+    h3 {
+        font-size: 1.5rem;
+        margin-bottom: 10px;
+    }
+
+    p {
+        font-size: 1rem;
+        color: #666;
+        margin-bottom: 20px;
+    }
+
+    .service-card {
+        background-color: #fff;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        border: 1px solid #e0e0e0;
+    }
+
+    .service-card:hover {
+        transform: scale(1.03);
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+        z-index: 5;
+            cursor: pointer;
+    }
+</style>
+
+<h2 class="text-center mb-4">About Us</h2>
+
+<div class="container my-2">
+    <div class="row justify-content-center">
+        <div class="col-md-5">
+
+                    <a class="logoposition"><img src="~/images/TechByte.png" class="logobig" alt="TechByte Logo" /></a>
+                    <h1 class="brand">TECH BYTE</h1>
+
+                    <h1>Visit Us!</h1>
+                    <p class="subtitle">Follow us on social media.</p>
+
+                    <div class="social-login">
+                        <button><i class="fab fa-instagram"></i></button>
+                        <button><i class="fab fa-x-twitter"></i></button>
+                        <button><i class="fab fa-facebook"></i></button>
+                    </div>
+
+        </div>
+        <div class="col-md-5">
+
+            <div class="card shadow-sm">
+                <div class="card-body">
+
+                    <a class="logoposition"><img src="~/images/TechByte.png" class="logo" alt="TechByte Logo" /></a>
+
+                    <h1>Contact Us!</h1>
+                    <p class="subtitle">Message us about your concerns.</p>
+
+                    <form method="post">
+                        <input asp-for="Subject" id="subjectInput" placeholder="Subject" class="form-control mb-2" required />
+                        <textarea asp-for="Message" id="messageInput" placeholder="Your message" class="form-control mb-2" required></textarea>
+                        <button class="message-btn btn-primary">Send Message</button>
+                    </form>
+
+                    <div class="text-success mt-3">@Model.MessageInfo</div>
+                    <div class="text-danger mt-3">
+                        @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                        {
+                            <p>@error.ErrorMessage</p>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <br />
+    <div class="row justify-content-center">
+        <h1 class="text-center mb-4">We Offer IT Services !!!</h1>
+        <div class="services">
+
+            <div class="service service-card"
+                 onclick="fillForm('Hardware & Software Support',
+     'Hello, I would like assistance with diagnosing or repairing my computer hardware/software. Please provide guidance on the best steps to take and any requirements needed. Thank you!');">
+
+                <i class="fas fa-tools fa-4x"></i>
+                <h3>Hardware & Software Support</h3>
+                <p>We diagnose, repair, and maintain all types of computer hardware and software, ensuring optimal performance and reliability.</p>
+            </div>
+
+            <div class="service service-card"
+                 onclick="fillForm('Computer Hardware Expertise',
+     'Hi, I need expert advice regarding computer hardware components and compatibility. I would appreciate help in evaluating or upgrading my current setup.');">
+
+                <i class="fas fa-desktop fa-4x"></i>
+                <h3>Computer Hardware Expertise</h3>
+                <p>Professional support for all major computer components and peripherals.</p>
+            </div>
+
+            <div class="service service-card"
+                 onclick="fillForm('System Setup & User Configuration',
+     'Hello, I need assistance setting up a system and configuring user settings. Kindly guide me through the setup process or provide support for new device onboarding.');">
+
+                <i class="fas fa-user-cog fa-4x"></i>
+                <h3>System Setup & User Configuration</h3>
+                <p>Perfect for new devices, employee onboarding, or system updates.</p>
+            </div>
+
+            <div class="service service-card"
+                 onclick="fillForm('Technology Testing & Evaluation',
+     'Hi, I would like help with testing and evaluating technology solutions to determine the best fit for my needs. Please assist with recommendations or performance assessment.');">
+
+                <i class="fas fa-microscope fa-4x"></i>
+                <h3>Technology Testing & Evaluation</h3>
+                <p>Stay ahead with the right tools and technologies for your home or business.</p>
+            </div>
+
+            <div class="service service-card"
+                 onclick="fillForm('Network Setup & Monitoring',
+     'Hello, I need help with network setup and monitoring. Please assist in reviewing, configuring, or optimizing my network for stability and security.');">
+
+                <i class="fas fa-network-wired fa-4x"></i>
+                <h3>Network Setup & Monitoring</h3>
+                <p>Stay connected with secure, well-optimized networks that support your daily operations.</p>
+            </div>
+
+            <div class="service service-card"
+                 onclick="fillForm('Technical Assistance & Customer Support',
+     'Hi, I would like to request technical assistance. Please help address an issue or provide customer support regarding my current setup or concerns.');">
+
+                <i class="fas fa-headset fa-4x"></i>
+                <h3>Technical Assistance & Customer Support</h3>
+                <p>We're here to help whenever you need us.</p>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script>
+    function fillForm(subject, message) {
+        document.getElementById("subjectInput").value = subject;
+        document.getElementById("messageInput").value = message;
+
+        // Scroll to form smoothly
+        document.getElementById("subjectInput").scrollIntoView({ behavior: "smooth" });
+    }
+</script>
+

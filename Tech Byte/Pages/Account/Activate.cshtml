@@ -1,0 +1,83 @@
+﻿@page "{email?}"
+@model Tech_Byte.Pages.Account.ActivateModel
+
+@if (TempData["RegistrationSuccess"] != null)
+{
+    <script>
+        alert('@TempData["RegistrationSuccess"]');
+    </script>
+}
+
+<style>
+        .activate-btn {
+            background: black;
+            color: white;
+            padding: 15px;
+            border: none;
+            border-radius: 8px;
+            margin-top: 10px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .activate-btn:hover {
+            background: white;
+            color: black;
+            border: 0.5px solid black;
+            transition: 0.25s ease;
+        }
+
+        .login-text a {
+            color: black;
+            font-weight: bold;
+            text-decoration: none;
+        }
+
+        .login-text a:hover {
+            color: #0a58ca;
+            transition: 0.25s ease;
+        }
+</style>
+
+<div class="row justify-content-center">
+    <div class="col-md-5">
+
+        <div class="card shadow-sm">
+            <div class="card-body">
+
+                <h3 class="text-center mb-3">Activate Account</h3>
+
+                <p class="text-center">
+                    A 6-digit activation code was sent to:
+                    <strong>@Model.Email</strong>
+                </p>
+
+                <form method="post">
+
+                    <input type="hidden" asp-for="Email" />
+
+                    <div class="mb-3">
+                        <label class="form-label">Activation Code</label>
+                        <input asp-for="Code" maxlength="6" class="form-control" placeholder="Enter code" required />
+                    </div>
+
+                    <button class="activate-btn w-100">Activate</button>
+
+                </form>
+
+                <div class="text-danger mt-3">
+                    @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                    {
+                        <p>@error.ErrorMessage</p>
+                    }
+                </div>
+
+                <p class="login-text mt-3 text-center">
+                    <a asp-page="/Account/Login">Back to login</a>
+                </p>
+
+            </div>
+        </div>
+
+    </div>
+</div>

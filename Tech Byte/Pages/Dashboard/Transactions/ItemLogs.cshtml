@@ -1,0 +1,259 @@
+﻿@page
+@model Tech_Byte.Pages.Dashboard.Transactions.ItemLogsModel
+@using Newtonsoft.Json
+@using Tech_Byte.Models
+@{
+    ViewData["Title"] = "Dashboard";
+}
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize(Roles = "Admin")]
+@{
+    var currentPage = ViewContext.RouteData.Values["page"]?.ToString() ?? "";
+}
+
+<div class="container my-5">
+    <h2 class="my-4">Transactions</h2>
+
+    <div class="container">
+        <div class="row d-flex justify-content-between align-items-center" style="padding: 0;">
+            <div class="col-auto">
+
+                <div class="row justify-content-center">
+                    <ul class="nav nav-tabs">
+                        <li class="nav-item">
+                            <a class="nav-link text-black @(currentPage == "/Dashboard/Transactions/ItemLogs" ? "active bg-black text-white" : "")" asp-page="/Dashboard/Transactions/ItemLogs">Item Logs</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-black @(currentPage == "/Dashboard/Transactions/AccountLogs" ? "active bg-black text-white" : "")" asp-page="/Dashboard/Transactions/AccountLogs">Account Logs</a>
+                        </li>
+                    </ul>
+                </div>
+
+            </div>
+
+            <div class="col-auto">
+                <!-- Search Form -->
+                <form method="get" class="d-flex align-items-center mb-3">
+                    <button type="submit" class="btn btn-primary me-2">Search</button>
+                    <input type="text" id="searchInput" name="SearchTerm" class="form-control mx-2"
+                           placeholder="Search Action, Name, Category, or Date..."
+                           value="@Model.SearchTerm" style="width: 300px;" />
+                    @if (!string.IsNullOrEmpty(Model.SearchTerm))
+                    {
+                        <a href="/Dashboard/Transactions/ItemLogs" class="btn btn-secondary ms-2">Clear</a>
+                    }
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Action</th>
+                <th>PerformedBy</th> 
+                <th>Item Name</th>
+                <th>Category</th>
+                <th>Timestamp</th>
+                <th>Details</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var transaction in Model.Transactions.OrderByDescending(t => t.Timestamp))
+            {
+                    var newItemcat = !string.IsNullOrEmpty(transaction.NewData)
+                    ? JsonConvert.DeserializeObject<InventoryItem>(transaction.NewData)
+                    : null;
+
+                <tr>
+                    <td>@transaction.ActionType</td>
+                    <td>@(transaction.ActionType == "Order" ? "System" : transaction.PerformedBy)</td>
+                    <td>@transaction.ItemName</td>
+                    <td>@if (newItemcat != null){@newItemcat.Category}</td>
+                    <td>@transaction.Timestamp</td>
+                    <td>
+                        <button class="btn btn-info"
+                                data-bs-toggle="modal"
+                                data-bs-target="@(transaction.ActionType == "Order" ? $"#ordertransactionModal-{transaction.Id}" : $"#transactionModal-{transaction.Id}")">
+                            View
+                        </button>
+                    </td>
+                </tr>
+
+                <div class="modal fade" id="transactionModal-@transaction.Id" tabindex="-1" aria-labelledby="transactionModalLabel-@transaction.Id" aria-hidden="true">
+                    <div class="modal-dialog modal-lg">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="transactionModalLabel-@transaction.Id">
+                                    Full Details - @transaction.ActionType
+                                </h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                @{
+                                    var oldItem = !string.IsNullOrEmpty(transaction.OldData)
+                                    ? JsonConvert.DeserializeObject<InventoryItem>(transaction.OldData)
+                                    : null;
+
+                                    var newItem = !string.IsNullOrEmpty(transaction.NewData)
+                                    ? JsonConvert.DeserializeObject<InventoryItem>(transaction.NewData)
+                                    : null;
+
+                                    var quantityBought = oldItem != null && newItem != null
+                                    ? oldItem.Quantity - newItem.Quantity
+                                    : 0;
+
+                                    var totalPrice = newItem != null
+                                    ? quantityBought * newItem.Price
+                                    : 0.0;
+
+                                    var purchaseLookup = Model.Purchases.ToDictionary(p => p.OrderId);
+
+                                    decimal grandTotal = 0;
+
+                                }
+                                    <div class="container-fluid">
+                                        <div class="row">
+                                            @if (oldItem != null)
+                                            {
+                                                <div class="col-lg-6 mb-4">
+                                                    <h5 class="text-danger"><strong>Old Data</strong></h5>
+                                                    <p><strong>Item ID:</strong> @transaction.ItemId</p>
+                                                    <p><strong>Name:</strong> @oldItem.Name</p>
+                                                    <p><strong>Category:</strong> @oldItem.Category</p>
+                                                    <div class="my-2">
+                                                        <strong>Description:</strong>
+                                                        <div style="max-height: 100px; overflow-y: auto; border: 1px solid #ccc; padding: 5px; border-radius: 4px; background-color: #f9f9f9;">
+                                                            @oldItem.Description
+                                                        </div>
+                                                    </div>
+                                                    <p><strong>Quantity:</strong> @oldItem.Quantity</p>
+                                                    <p><strong>Price:</strong> ₱@oldItem.Price.ToString("N2")</p>
+                                                    @if (!string.IsNullOrEmpty(oldItem.Image))
+                                                    {
+                                                        <p>
+                                                            <strong>Image:</strong><br />
+                                                            <img src="@oldItem.Image" alt="Old Image" class="img-thumbnail" style="max-height: 200px;" />
+                                                        </p>
+                                                    }
+                                                </div>
+                                            }
+
+                                            @if (newItem != null)
+                                            {
+                                                <div class="col-lg-6 mb-4">
+                                                    <h5 class="text-success"><strong>New Data</strong></h5>
+                                                    <p><strong>Item ID:</strong> @transaction.ItemId</p>
+                                                    <p><strong>Name:</strong> @newItem.Name</p>
+                                                <p><strong>Category:</strong> @newItem.Category</p>
+                                                    <div class="my-2">
+                                                        <strong>Description:</strong>
+                                                        <div style="max-height: 100px; overflow-y: auto; border: 1px solid #ccc; padding: 5px; border-radius: 4px; background-color: #f9f9f9;">
+                                                            @newItem.Description
+                                                        </div>
+                                                    </div>
+                                                    <p><strong>Quantity:</strong> @newItem.Quantity</p>
+                                                    <p><strong>Price:</strong> ₱@newItem.Price.ToString("N2")</p>
+                                                    @if (!string.IsNullOrEmpty(newItem.Image))
+                                                    {
+                                                        <p>
+                                                            <strong>Image:</strong><br />
+                                                            <img src="@newItem.Image" alt="New Image" class="img-thumbnail" style="max-height: 200px;" />
+                                                        </p>
+                                                    }
+                                                </div>
+                                            }
+                                        </div>
+                                    </div>
+                            </div>
+
+
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                @if (transaction.ActionType == "Order" && !string.IsNullOrEmpty(transaction.OrderId))
+                {
+                    var orderId = transaction.OrderId;
+
+                    if (purchaseLookup.ContainsKey(orderId))
+                    {
+                        var purchase = purchaseLookup[orderId];
+                        var matchingItem = purchase.Items.FirstOrDefault(i => i.ItemId == transaction.ItemId);
+
+                        <div class="modal fade" id="ordertransactionModal-@transaction.Id" tabindex="-1" aria-labelledby="transactionModalLabel-@transaction.Id" aria-hidden="true">
+                            <div class="modal-dialog modal-lg">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="transactionModalLabel-@transaction.Id">
+                                            Full Details - @transaction.ActionType
+                                        </h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <p><strong>Item ID:</strong> @transaction.ItemId</p>
+                                        <p><strong>Timestamp:</strong> @transaction.Timestamp</p>
+                                        <p><strong>Customer Username:</strong> @transaction.PerformedBy</p>
+                                        <p><strong>Order ID:</strong> @transaction.OrderId</p>
+                                        <p><strong>Stock Quantity:</strong><span><strong> Old:</strong> @oldItem.Quantity</span> → <span><strong>New:</strong> @newItem.Quantity</span></p>
+                                        <p><strong>Price:</strong> ₱@newItem.Price.ToString("N2")</p>
+                                        <hr />
+                                        @if (newItem != null)
+                                        {
+                                            <h5><strong>Item Bought:</strong></h5>
+                                            <ul class="list-group list-group-flush">                                                    
+                                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                                        <div class="d-flex align-items-center">
+                                                            <img src="@matchingItem.Image" alt="@matchingItem.Name" style="width: 150px; height: 150px; object-fit: contain;" class="me-2" />
+                                                            <div>
+                                                            <strong><span>@matchingItem.Name</span></strong>
+                                                            <strong><span class="text-muted ms-2">(@matchingItem.Quantity)</span></strong>
+                                                            </div>
+                                                        </div>
+                                                        <strong>Total:<span> ₱@matchingItem.Total.ToString("N2")</span></strong>
+                                                    </li> 
+                                            </ul>
+                                        }
+
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                }
+            }
+
+        </tbody>
+    </table>
+</div>
+
+<script>
+    const searchInput = document.getElementById('searchInput');
+    const tableRows = document.querySelectorAll('table tbody tr');
+
+    searchInput.addEventListener('input', function() {
+        const filter = this.value.toLowerCase();
+
+        tableRows.forEach(row => {
+            // Get the text of the relevant columns
+            const actionText = row.cells[0].innerText.toLowerCase();
+            const nameText = row.cells[2].innerText.toLowerCase();
+            const categoryText = row.cells[3].innerText.toLowerCase();
+            const timestampText = row.cells[4].innerText.toLowerCase();
+
+            // Check if any column includes the filter text
+            const match = actionText.includes(filter) ||
+                          nameText.includes(filter) ||
+                          categoryText.includes(filter) ||
+                          timestampText.includes(filter);
+
+            row.style.display = match ? "" : "none";
+        });
+    });
+</script>

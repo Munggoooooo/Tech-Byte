@@ -1,0 +1,143 @@
+﻿@page
+@model Tech_Byte.Pages.Dashboard.SalesModel
+@{
+    ViewData["Title"] = "Dashboard";
+}
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize(Roles = "Admin")]
+
+    <div class="container my-5">
+
+        <h2 class="my-4">Sales</h2>
+
+    <div class="container">
+        <div class="row d-flex justify-content-between align-items-center" style="padding: 0;">
+            <div class="col-auto">
+                <a></a>
+            </div>
+            <div class="col-auto">
+                 <div class="d-flex align-items-center mb-3">
+                    <label class="me-2" for="yearFilter">Filter by Year:</label>
+                    <select id="yearFilter" class="form-select mx-3">
+                        <option value="">All Years</option>
+                        @foreach (var year in Model.MonthlySales.Select(x => x._id.year).Distinct())
+                        {
+                            <option value="@year">@year</option>
+                        }
+                    </select>
+                 </div>
+            </div>
+        </div>
+    </div>
+
+
+        <h4 class="my-4">Monthly Sales</h4>
+        <canvas id="monthlySalesChart" style="width:100%; max-height:400px;"></canvas>
+
+        <h4 class="my-4">Monthly Items Sold per Category</h4>
+        <canvas id="categoryMonthlyChart" style="max-height:400px; width:100%;"></canvas>
+
+    </div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    // Get data from Razor
+    const monthlySalesData = @Html.Raw(Json.Serialize(Model.MonthlySales.Select(x => new {
+        year = x._id.year,
+        month = x._id.month,
+        total = (double)x.TotalSales
+    })));
+
+    const monthlyCategoryData = @Html.Raw(Json.Serialize(Model.MonthlyCategoryItems));
+
+    // Assign colors for categories (14 colors)
+    const categoryColors = [
+        "rgba(255,99,132,0.7)", "rgba(54,162,235,0.7)", "rgba(255,206,86,0.7)",
+        "rgba(75,192,192,0.7)", "rgba(153,102,255,0.7)", "rgba(255,159,64,0.7)",
+        "rgba(199,199,199,0.7)", "rgba(83,102,255,0.7)", "rgba(255,99,255,0.7)",
+        "rgba(60,179,113,0.7)", "rgba(255,215,0,0.7)", "rgba(100,149,237,0.7)",
+        "rgba(255,140,0,0.7)", "rgba(128,0,128,0.7)"
+    ];
+
+    let salesChart, categoryChart;
+
+    function renderCharts(filterYear = "all") {
+        // ----- Filter Monthly Sales -----
+        const filteredSales = filterYear === "all" ? monthlySalesData :
+            monthlySalesData.filter(x => x.year == parseInt(filterYear));
+
+        const salesLabels = filteredSales.map(x => `${x.year}-${x.month.toString().padStart(2, '0')}`);
+        const salesValues = filteredSales.map(x => x.total);
+
+        const salesColors = salesValues.map((value, idx, arr) => {
+            if (idx === 0) return 'rgba(54,162,235,0.7)';
+            return value >= arr[idx - 1] ? 'rgba(0,200,0,0.7)' : 'rgba(200,0,0,0.7)';
+        });
+
+        const salesBorderColors = salesColors.map(c => c.replace('0.7','1'));
+
+        // Destroy previous chart if exists
+        if (salesChart) salesChart.destroy();
+
+        // Render Monthly Sales chart
+        const ctxSales = document.getElementById("monthlySalesChart").getContext("2d");
+        salesChart = new Chart(ctxSales, {
+            type: 'bar',
+            data: { labels: salesLabels, datasets: [{ label: 'Monthly Sales (₱)', data: salesValues, backgroundColor: salesColors, borderColor: salesBorderColors, borderWidth: 2 }] },
+            options: {
+                responsive: true,
+                plugins: { legend: { display: true } },
+                scales: {
+                    y: { beginAtZero: true, title: { display: true, text: "₱ Amount" } },
+                    x: { title: { display: true, text: "Year-Month" } }
+                }
+            }
+        });
+
+        // ----- Filter Monthly Category Sales -----
+        const filteredCategory = filterYear === "all" ? monthlyCategoryData :
+            monthlyCategoryData.filter(x => x.year == parseInt(filterYear));
+
+        const monthsCat = [...new Set(filteredCategory.map(x => `${x.year}-${x.month.toString().padStart(2,'0')}`))];
+        const categories = [...new Set(filteredCategory.map(x => x.category))];
+
+        const datasets = categories.map((cat, idx) => ({
+            label: cat,
+            data: monthsCat.map(m => {
+                const [y, mo] = m.split("-");
+                const match = filteredCategory.find(x => x.category === cat && x.year == parseInt(y) && x.month == parseInt(mo));
+                return match ? match.totalItemsSold : 0;
+            }),
+            backgroundColor: categoryColors[idx % categoryColors.length]
+        }));
+
+        if (categoryChart) categoryChart.destroy();
+
+        const ctxCat = document.getElementById("categoryMonthlyChart").getContext("2d");
+        categoryChart = new Chart(ctxCat, {
+            type: 'bar',
+            data: { labels: monthsCat, datasets: datasets },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { display: true, position: "top" },
+                    title: { display: true, text: "Monthly Item Sales per Category" }
+                },
+                scales: {
+                    y: { beginAtZero: true, title: { display: true, text: "Items Sold" } },
+                    x: { title: { display: true, text: "Year-Month" } }
+                }
+            }
+        });
+    }
+
+    // Initial render
+    renderCharts();
+
+    // Listen to year filter changes
+    document.getElementById("yearFilter").addEventListener("change", function(){
+        renderCharts(this.value);
+    });
+</script>
+

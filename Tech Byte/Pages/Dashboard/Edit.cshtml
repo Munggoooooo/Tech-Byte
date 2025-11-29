@@ -1,0 +1,50 @@
+﻿@page
+@model Tech_Byte.Pages.Dashboard.EditModel
+@{
+    ViewData["Title"] = "Dashboard";
+}
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize(Roles = "Admin")]
+
+<style>
+    body {
+        background-color: whitesmoke;
+    }
+</style>
+
+<div class="container my-5">
+<h2>Edit Item</h2>
+
+<img src="@Model.Item.Image" height="auto" width="350" />
+
+<form method="post">
+    <input type="hidden" asp-for="Item.Id" />
+        <div class="mb-3">
+            <label asp-for="Item.Image" class="form-label">Image Url</label>
+            <input asp-for="Item.Image" class="form-control" aria-describedby="emailHelp" style="width:50%" />
+        </div>
+        <div class="mb-3">
+            <label asp-for="Item.Name" class="form-label"></label>
+            <input asp-for="Item.Name" class="form-control" aria-describedby="emailHelp" style="width:50%" />
+        </div>
+        <div class="mb-3">
+            <label asp-for="Item.Category" class="form-label"></label>
+            <input asp-for="Item.Category" class="form-control" aria-describedby="emailHelp" style="width:50%" />
+        </div>
+        <div class="mb-3">
+            <label asp-for="Item.Description" class="form-label"></label>
+            <textarea asp-for="Item.Description" class="form-control" aria-describedby="emailHelp" style="width:50%"></textarea>
+        </div>
+        <div class="mb-3">
+            <label asp-for="Item.Quantity" class="form-label"></label>
+            <input asp-for="Item.Quantity" class="form-control" type="number" aria-describedby="emailHelp" style="width:50%" />
+        </div>
+        <div class="mb-3">
+            <label asp-for="Item.Price" class="form-label"></label>
+            <input asp-for="Item.Price" class="form-control" type="number" step="0.01" aria-describedby="emailHelp" style="width:50%" />
+        </div>
+    <br/>
+    <button class="btn btn-success" type="submit">Update</button>
+    <a class="btn btn-secondary" asp-page="/Dashboard/Inventory">Back</a>
+</form>
+</div>

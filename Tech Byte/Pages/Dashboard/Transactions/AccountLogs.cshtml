@@ -1,0 +1,179 @@
+﻿@page
+@model Tech_Byte.Pages.Dashboard.Transactions.AccountLogsModel
+@{
+    ViewData["Title"] = "Dashboard";
+}
+@using Newtonsoft.Json
+@using Newtonsoft.Json.Linq;
+@using Tech_Byte.Utilities;
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize(Roles = "Admin")]
+@{
+    var currentPage = ViewContext.RouteData.Values["page"]?.ToString() ?? "";
+}
+
+<div class="container mt-5">
+    <h2 class="mb-4">Transactions</h2>
+
+    <div class="container">
+        <div class="row d-flex justify-content-between align-items-center" style="padding: 0;">
+            <div class="col-auto">
+
+                <div class="row justify-content-center">
+                    <ul class="nav nav-tabs">
+                        <li class="nav-item">
+                            <a class="nav-link text-black @(currentPage == "/Dashboard/Transactions/ItemLogs" ? "active bg-black text-white" : "")" asp-page="/Dashboard/Transactions/ItemLogs">Item Logs</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-black @(currentPage == "/Dashboard/Transactions/AccountLogs" ? "active bg-black text-white" : "")" asp-page="/Dashboard/Transactions/AccountLogs">Account Logs</a>
+                        </li>
+                    </ul>
+                </div>
+
+            </div>
+
+            <div class="col-auto">
+                <!-- Search Form -->
+                <form method="get" class="d-flex align-items-center mb-3">
+                    <button type="submit" class="btn btn-primary me-2">Search</button>
+                    <input type="text" id="accountSearch" name="SearchTerm" class="form-control mx-2"
+                           placeholder="Search Action, PerformedBy, Username, or Date..."
+                           value="@Model.SearchTerm" style="width: 300px;" />
+                    @if (!string.IsNullOrEmpty(Model.SearchTerm))
+                    {
+                        <a href="/Dashboard/Transactions/AccountLogs" class="btn btn-secondary ms-2">Clear</a>
+                    }
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <table class="table table-striped table-hover">
+        <thead>
+            <tr>
+                <th>Action</th>
+                <th>Performed By</th>
+                <th>Account Username</th>
+                <th>Timestamp</th>
+                <th>Details</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            @foreach (var log in Model.Logs)
+            {
+                var modalId = $"logModal-{log.Id}";
+
+                <tr>
+                    <td>@log.Action</td>
+                    <td>@log.PerformedBy</td>
+                    <td>@log.AccountUsername</td>
+                    <td>@log.Timestamp.ToLocalTime()</td>
+                    <td>
+                        <button class="btn btn-info btn-sm"
+                                data-bs-toggle="modal"
+                                data-bs-target="#@modalId">
+                            View
+                        </button>
+
+                        @{
+                            // Deserialize the JSON string in the 'Details' field, applying the ObjectIdConverter
+                            var user = JsonConvert.DeserializeObject<Tech_Byte.Models.User>(
+                            log.Details, // log.Details contains the serialized user data
+                            new JsonSerializerSettings
+                            {
+                                Converters = new List<JsonConverter> { new ObjectIdConverter() } // Handle ObjectId during deserialization
+                            }
+                            );
+                        }
+
+
+                        <!-- Details Modal -->
+                        <div class="modal fade" id="@modalId" tabindex="-1">
+                            <div class="modal-dialog modal-lg">
+                                <div class="modal-content">
+
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">Account Details</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                    </div>
+
+                                    <div class="modal-body">
+                                        <table class="table table-striped">
+                                            <tbody>
+                                                <tr>
+                                                    <th>Name</th>
+                                                    <td>@user.Name</td>
+                                                </tr>
+                                                <tr>
+                                                    <th>Username</th>
+                                                    <td>@user.Username</td>
+                                                </tr>
+                                                <tr>
+                                                    <th>Email</th>
+                                                    <td>@user.Email</td>
+                                                </tr>
+                                                <tr>
+                                                    <th>Role</th>
+                                                    <td>@user.Role</td>
+                                                </tr>
+                                                <tr>
+                                                    <th>Contact</th>
+                                                    <td>@user.Contact</td>
+                                                </tr>
+                                                <tr>
+                                                    <th>Address</th>
+                                                    <td>@user.Address</td>
+                                                </tr>
+                                                <tr>
+                                                    <th>Account Activated</th>
+                                                    <td>
+                                                        @if (user.IsActivated)
+                                                        {
+                                                            <span class="badge bg-success">Activated</span>
+                                                        }
+                                                        else
+                                                        {
+                                                            <span class="badge bg-danger">Not Activated</span>
+                                                        }
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+
+                                    <div class="modal-footer">
+                                        <button class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<script>
+    const searchInput = document.getElementById("accountSearch");
+    const table = document.querySelector("table tbody");
+    const rows = table.querySelectorAll("tr");
+
+    function filterTable(filterText) {
+        const filter = filterText.toLowerCase();
+        rows.forEach(row => {
+            const rowText = Array.from(row.cells).map(cell => cell.textContent.toLowerCase()).join(" ");
+            row.style.display = rowText.includes(filter) ? "" : "none";
+        });
+    }
+
+    // Apply initial search term if any
+    filterTable(searchInput.value);
+
+    // Real-time filtering
+    searchInput.addEventListener("input", () => {
+        filterTable(searchInput.value);
+    });
+</script>

@@ -1,0 +1,104 @@
+﻿@page
+@model Tech_Byte.Pages.Account.RegisterModel
+
+<style>
+    .register-btn {
+        background: black;
+        color: white;
+        padding: 15px;
+        border: none;
+        border-radius: 8px;
+        margin-top: 10px;
+        cursor: pointer;
+        font-size: 16px;
+    }
+
+    .register-btn:hover {
+        background: white;
+        color: black;
+        border: 0.5px solid black;
+        transition: 0.25s ease;
+    }
+
+    .login-text a {
+        color: black;
+        font-weight: bold;
+        text-decoration: none;
+    }
+
+    .login-text a:hover {
+        color: #0a58ca;
+        transition: 0.25s ease;
+    }
+
+</style>
+
+<div class="row justify-content-center">
+    <div class="col-md-6">
+
+        <div class="card shadow-sm">
+            <div class="card-body">
+
+                <h3 class="text-center mb-3">Create Account</h3>
+
+                <form method="post">
+
+                    <div class="mb-3">
+                        <label asp-for="Input.Name" class="form-label"></label>
+                        <input asp-for="Input.Name" class="form-control" required />
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Input.Username" class="form-label"></label>
+                        <input asp-for="Input.Username" class="form-control" required />
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Input.Email" class="form-label"></label>
+                        <input asp-for="Input.Email" type="email" class="form-control" required />
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Input.PasswordHash" class="form-label">Password</label>
+                        <input asp-for="Input.PasswordHash" type="password" class="form-control" required />
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Input.Role" class="form-label">Role</label>
+                        <select asp-for="Input.Role" class="form-select" required>
+                            <option value="">-- Select Role --</option>
+                            <option value="Member">Member</option>
+                            <option value="Admin">Admin</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Input.Contact" class="form-label"></label>
+                        <input asp-for="Input.Contact" class="form-control" />
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Input.Address" class="form-label"></label>
+                        <input asp-for="Input.Address" class="form-control" />
+                    </div>
+
+                    <button class="register-btn w-100">Register</button>
+
+                </form>
+
+                <div class="text-danger mt-3">
+                    @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                    {
+                        <p>@error.ErrorMessage</p>
+                    }
+                </div>
+
+                <p class="login-text mt-3 text-center">
+                    Already have an account?<a asp-page="/Account/Login" class="ms-2">Login here</a>
+                </p>
+
+            </div>
+        </div>
+
+    </div>
+</div>

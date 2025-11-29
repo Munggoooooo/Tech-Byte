@@ -1,0 +1,176 @@
+﻿@page
+@model Tech_Byte.Pages.Dashboard.ContactInquiriesModel
+@{
+    ViewData["Title"] = "Dashboard";
+}
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize(Roles = "Admin")]
+
+<h2 class="my-4">Contact Inquiries</h2>
+
+<div class="container">
+    <div class="row d-flex justify-content-between align-items-center" style="padding: 0;">
+        <div class="col-auto">
+            <a></a>
+        </div>
+        <div class="col-auto">
+            <!-- Search Form -->
+            <form method="get" class="d-flex align-items-center mb-3">
+                <button type="submit" class="btn btn-primary me-2">Search</button>
+                <input type="text" id="contactSearch" name="SearchTerm" class="form-control mx-2"
+                       placeholder="Search Name, Role, Email, Subject or Date."
+                       value="@Model.SearchTerm" style="width: 300px;" />
+                @if (!string.IsNullOrEmpty(Model.SearchTerm))
+                {
+                    <a href="/Dashboard/ContactInquiries" class="btn btn-secondary ms-2">Clear</a>
+                }
+            </form>
+        </div>
+    </div>
+</div>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th class="d-none">Id</th>
+            <th>From User</th>
+            <th>User Role</th>
+            <th>Email</th>
+            <th>Subject</th>
+            <th>Timestamp</th>
+            <th>Read</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        @foreach (var contact in Model.Contacts)
+        {
+            <tr class="@(contact.IsRead ? "" : "table-warning")">
+                <!-- Highlight unread -->
+                <td class="d-none">@contact.Id</td>
+                <td>@contact.FromUsername</td>
+                <td>@contact.UserRole</td>
+                <td>@contact.Email</td>
+                <td>@contact.Subject</td>
+                <td>@contact.Timestamp.ToString("yyyy-MM-dd HH:mm:ss")</td>
+                <td>@(contact.IsRead ? "Yes" : "No")</td>
+                <td>
+
+                    <!-- VIEW MODAL BUTTON -->
+                    <button class="btn btn-sm btn-primary"
+                            data-bs-toggle="modal"
+                            data-bs-target="#viewModal-@contact.Id">
+                        View
+                    </button>
+
+                    <!-- MARK READ -->
+                    <form method="post" asp-page-handler="MarkRead" class="d-inline">
+                        <input type="hidden" name="ContactId" value="@contact.Id" />
+                        <button class="btn btn-sm btn-info" @(contact.IsRead ? "disabled" : "")>Mark Read</button>
+                    </form>
+
+                    <!-- REPLY -->
+                    <button class="btn btn-sm btn-success"
+                            data-bs-toggle="modal"
+                            data-bs-target="#replyModal-@contact.Id">
+                        Reply
+                    </button>
+
+                    <!-- VIEW MODAL -->
+                    <div class="modal fade" id="viewModal-@contact.Id" tabindex="-1" aria-hidden="true">
+                        <div class="modal-dialog modal-lg">
+                            <div class="modal-content">
+
+                                <div class="modal-header">
+                                    <h5 class="modal-title">Message Details</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                </div>
+
+                                <div class="modal-body">
+
+                                    <p><strong>From:</strong> @contact.FromUsername (@contact.UserRole)</p>
+                                    <p><strong>Email:</strong> @contact.Email</p>
+                                    <p><strong>Subject:</strong> @contact.Subject</p>
+                                    <p><strong>Received:</strong> @contact.Timestamp.ToString("yyyy-MM-dd HH:mm:ss")</p>
+
+                                    <label><strong>Message:</strong></label>
+                                    <div style="max-height: 200px; overflow-y: auto; border: 1px solid #ccc; padding: 10px; border-radius: 6px;">
+                                        @contact.Message
+                                    </div>
+
+                                    @if (!string.IsNullOrEmpty(contact.ReplyMessage))
+                                    {
+                                        <hr />
+                                        <p><strong>Admin Reply:</strong> @contact.ReplyTimestamp?.ToString("yyyy-MM-dd HH:mm:ss")</p>
+                                        <div style="max-height: 150px; overflow-y: auto; border: 1px solid #28a745; padding: 10px; border-radius: 6px;">
+                                            @contact.ReplyMessage
+                                        </div>
+                                    }
+
+                                </div>
+
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- REPLY MODAL -->
+                    <div class="modal fade" id="replyModal-@contact.Id" tabindex="-1" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+
+                                <form method="post" asp-page-handler="Reply">
+
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">Reply to @contact.FromUsername</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                    </div>
+
+                                    <div class="modal-body">
+                                        <input type="hidden" name="ContactId" value="@contact.Id" />
+                                        <textarea name="ReplyMessage" class="form-control" rows="5" required>@contact.ReplyMessage</textarea>
+                                    </div>
+
+                                    <div class="modal-footer">
+                                        <button type="submit" class="btn btn-primary">Send Reply</button>
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                    </div>
+
+                                </form>
+
+                            </div>
+                        </div>
+                    </div>
+
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<script>
+    const searchInput = document.getElementById("contactSearch");
+    const table = document.querySelector("table tbody");
+    const rows = table.querySelectorAll("tr");
+
+    function filterTable(filterText) {
+        const filter = filterText.toLowerCase();
+        rows.forEach(row => {
+            const rowText = Array.from(row.cells).map(cell => cell.textContent.toLowerCase()).join(" ");
+            row.style.display = rowText.includes(filter) ? "" : "none";
+        });
+    }
+
+    // Apply initial search term if any
+    filterTable(searchInput.value);
+
+    // Real-time filtering
+    searchInput.addEventListener("input", () => {
+        filterTable(searchInput.value);
+    });
+</script>
+

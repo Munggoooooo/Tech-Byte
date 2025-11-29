@@ -1,0 +1,156 @@
+﻿@page
+@model Tech_Byte.Pages.DeveloperModel
+@{
+    ViewData["Title"] = "Developers";
+}
+
+<link rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+      integrity="sha512-pVnD4zDkz0e6rZvj+QzFJZKTTnXJr4LZ9QvvRv3H3+h5ZiwjD+OQGcvKj9Wa5oVwJhScTRnT9+RXYKXYl1hxgg=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer" />
+<style>
+    body {
+        background-color: whitesmoke;
+    }
+
+    .team-members {
+        display: flex;
+        justify-content: space-around;
+        gap: 30px;
+        flex-wrap: wrap;
+    }
+
+    .team-member {
+        text-align: center;
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        padding: 20px;
+        width: 250px;
+    }
+
+    .team-member img {
+        width: 100%;
+        height: auto;
+        border-radius: 50%;
+        margin-bottom: 20px;
+    }
+
+    h3 {
+        font-size: 1.5rem;
+        margin-bottom: 10px;
+    }
+
+    p {
+        font-size: 1rem;
+        color: #666;
+        margin-bottom: 20px;
+    }
+
+    .social-links {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+    }
+
+    .social-links a {
+        font-size: 1.5rem;
+        color: #333;
+        text-decoration: none;
+    }
+
+    .social-links a:hover {
+        color: #007bff;
+    }
+
+    .custom-tooltip .tooltip-inner {
+        background-color: black !important;
+        color: white !important;
+        font-weight: 500;
+        padding: 5px 10px;
+        border-radius: 4px;
+    }
+
+    .custom-tooltip.bs-tooltip-top .tooltip-arrow::before {
+        border-top-color: black !important;
+    }
+</style>
+
+<div class="container my-5">
+    <h1 class="text-center mb-4">Meet Our Team</h1>
+    <div class="team-members">
+        <div class="team-member">
+            <img src="https://scontent.fmnl9-2.fna.fbcdn.net/v/t1.6435-9/103263002_723457418417242_8037125999463113422_n.jpg?_nc_cat=101&ccb=1-7&_nc_sid=a5f93a&_nc_eui2=AeES_mntjN443bGD5_CJxEU3cw8Rt9iYXepzDxG32Jhd6nfZMuPiUTyhorxKJeJS_guGrCHiWG5A4PnZKdlcsfVZ&_nc_ohc=4tOBdKW4G0oQ7kNvwH7cnB6&_nc_oc=AdluwftKNHXI7EngyAiiCyIlsMJQ_bDo8f9Vlv7yrfKLIRex5ZA_3-96GjxbrabpMas&_nc_zt=23&_nc_ht=scontent.fmnl9-2.fna&_nc_gid=1OTv6t5vgrw9tf4RgEDstA&oh=00_AfiLMK8a-5hOP-n09H_tLql9PjRsE6qOJjKEjz6JdTAfcg&oe=694AA7DA" alt="Momla" />
+            <h3>Momla</h3>
+            <p>Webpage Designer</p>
+            <div class="social-links">
+                <a href="https://www.facebook.com/GELLO.OR.JESS.27" class="btn btn-primary"
+                        data-bs-toggle="tooltip" data-bs-placement="top"
+                        data-bs-custom-class="custom-tooltip"
+                   data-bs-title="GELLO.OR.JESS.27">
+                    <i class="fa-brands fa-facebook" style="filter: invert(1) brightness(1000%);"></i>
+                </a>
+
+                <a href="momlajess@gmail.com" class="btn btn-secondary"
+                        data-bs-toggle="tooltip" data-bs-placement="top"
+                        data-bs-custom-class="custom-tooltip"
+                        data-bs-title="momlajess@gmail.com">
+                    <i class="fa-brands fa-google" style="filter: invert(1) brightness(1000%);"></i>
+                </a>
+            </div>
+        </div>
+
+        <div class="team-member">
+            <img src="https://scontent.fmnl9-7.fna.fbcdn.net/v/t39.30808-6/471470554_2351069635233896_7150183827899281177_n.jpg?_nc_cat=104&ccb=1-7&_nc_sid=6ee11a&_nc_eui2=AeF86VBPBfz7mhSxHTFIho2amofCWAO8Yceah8JYA7xhx4brB21PDW_wW6TayaQLwlX8AmwgesLCqorqEEMbN8xD&_nc_ohc=TlPKN5dokx8Q7kNvwFrRpMj&_nc_oc=AdlM8FKmjvTOgNkkQ6pM5d69ysWDOsUbp4nd0j2Z29YIcYrzh7-nh_67umazTQAc3RY&_nc_zt=23&_nc_ht=scontent.fmnl9-7.fna&_nc_gid=I8qAeGfEtG6VfDDNwGx52w&oh=00_AfjR4km_dSveiS4k4sbrW4aATsP2H8gi3btHitHZ64BmIQ&oe=69292350" alt="Ibarrita" />
+            <h3>Ibarrita</h3>
+            <p>Main Programmer</p>
+            <div class="social-links">
+                <a href="https://www.facebook.com/Munggo.On.Guitar" class="btn btn-primary"
+                        data-bs-toggle="tooltip" data-bs-placement="top"
+                        data-bs-custom-class="custom-tooltip"
+                        data-bs-title="Munggo.On.Guitar">
+                    <i class="fa-brands fa-facebook" style="filter: invert(1) brightness(1000%);"></i>
+                </a>
+
+                <a href="MungGo26@gmail.com" class="btn btn-secondary"
+                        data-bs-toggle="tooltip" data-bs-placement="top"
+                        data-bs-custom-class="custom-tooltip"
+                        data-bs-title="MungGo26@gmail.com">
+                    <i class="fa-brands fa-google" style="filter: invert(1) brightness(1000%);"></i>
+                </a>
+            </div>
+        </div>
+
+        <div class="team-member">
+            <img src="https://scontent.fmnl9-2.fna.fbcdn.net/v/t39.30808-6/480197665_1344724596682869_8145361837595159501_n.jpg?_nc_cat=101&ccb=1-7&_nc_sid=a5f93a&_nc_eui2=AeF4lFv8-iDWzWTHqi5aMkA57mFgR5sQP6HuYWBHmxA_oQq6CBqerhCbhejnH-FbTphAgxs0XfdpGt8oBScg27Pq&_nc_ohc=ayHOXumvbLwQ7kNvwHsObos&_nc_oc=AdnYoyV4DKnDo1mSljqvyvrCyvNP7IKb78Mp675Oj8ClSakTx0ADEq7TuwBI6SDdcQM&_nc_zt=23&_nc_ht=scontent.fmnl9-2.fna&_nc_gid=8Gh9XF8f8M6BqFaWxIML9g&oh=00_AfiQEW9bCctuN319S17X5goM7aUMMXZPrmJbaRUNECLYSA&oe=69293155" alt="Moncada" />
+            <h3>Moncada</h3>
+            <p>Assistant Programmer</p>
+            <div class="social-links">
+                <a href="https://www.facebook.com/louise.moncada.31" class="btn btn-primary"
+                        data-bs-toggle="tooltip" data-bs-placement="top"
+                        data-bs-custom-class="custom-tooltip"
+                        data-bs-title="louise.moncada.31">
+                    <i class="fa-brands fa-facebook" style="filter: invert(1) brightness(1000%);"></i>
+                </a>
+
+                <a href="luismariomoncada7@gmail.com" class="btn btn-secondary"
+                        data-bs-toggle="tooltip" data-bs-placement="top"
+                        data-bs-custom-class="custom-tooltip"
+                        data-bs-title="luismariomoncada7@gmail.com">
+                    <i class="fa-brands fa-google" style="filter: invert(1) brightness(1000%);"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+    });
+</script>

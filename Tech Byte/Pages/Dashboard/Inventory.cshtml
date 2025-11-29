@@ -1,0 +1,96 @@
+﻿@page
+@model Tech_Byte.Pages.Dashboard.InventoryModel
+@{
+    ViewData["Title"] = "Dashboard";
+}
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize(Roles = "Admin")]
+
+<div class="container my-5">
+        <h2 class="my-4">Inventory</h2>
+
+        <div class="container">
+            <div class="row d-flex justify-content-between align-items-center" style="padding: 0;">
+                <div class="col-auto">
+                    <a class="btn btn-primary" href="/Dashboard/Create">Add Item</a>
+                </div>
+                <div class="col-auto">
+                    <!-- Search Form -->
+                    <form id="searchForm" method="get" class="d-flex align-items-center" onsubmit="showSearchResultMessage();">
+                        <button type="submit" class="btn btn-primary me-2">Search</button>
+                        <input type="text" class="form-control" id="searchInput" name="search" placeholder="Search Name or Category." value="@Model.SearchTerm" style="width: 300px;" />
+                        @if (!string.IsNullOrEmpty(Model.SearchTerm) || !string.IsNullOrEmpty(Request.Query["category"].ToString()))
+                        {
+                            <a href="/Inventory" class="btn btn-secondary ms-2">Clear Filter</a>
+                        }
+                    </form>
+                </div>
+            </div>
+        </div>
+
+
+    <br />
+
+    <!-- Table of Items -->
+    <div class="container text-center">
+        <table class="table table-striped text-center align-middle">
+            <tr>
+                <th>Image</th>
+                <th>Name</th>
+                <th>Category</th>
+                <th>Description</th>
+                <th>Quantity</th>
+                <th>Price</th>
+                <th>Actions</th>
+            </tr>
+            @foreach (var item in Model.Items)
+            {
+                <tr>
+                    <td><img src="@item.Image" style="width:80px; height:80px; object-fit:contain;" class="me-2" /></td>
+                    <td width="180">@item.Name</td>
+                    <td width="180">@item.Category</td>
+                    <td width="300">
+                        <div class="description-box" style="max-height: 100px;
+                                                            overflow-y: auto;
+                                                            overflow-x: hidden;
+                                                            white-space: normal;
+                                                            padding: 5px;
+                                                            box-sizing: border-box;">
+                            @item.Description
+                        </div>
+                    </td>
+                    <td style="text-align:center;">@item.Quantity</td>
+                    <td>
+                        ₱@item.Price.ToString("N2")
+                    </td>
+                    <td>
+                        <a class="btn btn-info d-inline" href="/Dashboard/Edit?id=@item.Id">Edit</a> |
+                        <a class="btn btn-danger d-inline" href="/Dashboard/Delete?id=@item.Id">Delete</a>
+                    </td>
+                </tr>
+
+            }
+        </table>
+    </div>
+</div>
+
+<script>
+    const searchInput = document.getElementById('searchInput');
+    const tableRows = document.querySelectorAll('table tbody tr');
+
+    searchInput.addEventListener('input', function() {
+        const filter = this.value.toLowerCase();
+
+        tableRows.forEach(row => {
+            // Get the text of the relevant columns
+            const nameText = row.cells[2].innerText.toLowerCase();
+            const categoryText = row.cells[3].innerText.toLowerCase();
+
+            // Check if any column includes the filter text
+            const match = nameText.includes(filter) ||
+                          categoryText.includes(filter);
+
+            row.style.display = match ? "" : "none";
+        });
+    });
+</script>

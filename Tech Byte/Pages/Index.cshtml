@@ -1,0 +1,207 @@
+﻿@page
+@model Tech_Byte.Pages.HomeModel
+@using Newtonsoft.Json
+@using Tech_Byte.Models
+@{
+    ViewData["Title"] = "Home";
+}
+
+<style>
+    body{
+        background-color: whitesmoke;
+    }
+
+    .product-card {
+        background-color: #fff;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        border: 1px solid #e0e0e0;
+    }
+
+    .product-card:hover {
+        transform: scale(1.03);
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+        z-index: 5;
+            cursor: pointer;
+    }
+</style>
+
+<div class="container my-2">
+    <h3 class="text-center mb-2"><img src="~/images/TechByte.png" alt="TechByte Logo" width="100" height="100" class="d-inline-block" />Welcome to Tech Byte Home Page</h3>
+
+
+<div id="carouselExampleInterval" class="carousel slide" data-bs-ride="carousel">
+
+    <div class="carousel-indicators">
+        <button type="button" data-bs-target="#carouselExampleInterval" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
+        <button type="button" data-bs-target="#carouselExampleInterval" data-bs-slide-to="1" aria-label="Slide 2"></button>
+        <button type="button" data-bs-target="#carouselExampleInterval" data-bs-slide-to="2" aria-label="Slide 3"></button>
+        <button type="button" data-bs-target="#carouselExampleInterval" data-bs-slide-to="3" aria-label="Slide 4"></button>
+    </div>
+
+    <div class="carousel-inner ">
+        <!-- Bootstrap 5 aspect ratio helper -->
+        <div class="carousel-item active" data-bs-interval="4000">
+            <img src="https://easypc.com.ph/cdn/shop/files/Desktop_Banner_D1_1920x_8e22fa3b-5d29-4875-bf43-20a6776e55fe_1366x.webp?v=1759201654" class="d-block w-100 h-100" alt="Slide 1" style="object-fit: contain;">
+        </div>
+        <div class="carousel-item" data-bs-interval="4000">
+            <img src="https://easypc.com.ph/cdn/shop/files/BTF-Banners-1920x-450_1366x.jpg?v=1727932776" class="d-block w-100 h-100" alt="Slide 2" style="object-fit: contain;">
+        </div>
+        <div class="carousel-item" data-bs-interval="4000">
+            <img src="https://easypc.com.ph/cdn/shop/files/viber_image_2025-07-03_13-40-54-866_1366x.jpg?v=1753065570" class="d-block w-100 h-100" alt="Slide 3" style="object-fit: contain;">
+        </div>
+        <div class="carousel-item" data-bs-interval="4000">
+                <img src="https://easypc.com.ph/cdn/shop/files/MC13807_RAKK_Sinag_Pro_PRE-ORDER_-_Website_Desktop_1920x450_8768d0b5-0c6d-4cec-aa9e-b7a00842eea8_1366x.png?v=1740709749" class="d-block w-100 h-100" alt="Slide 4" style="object-fit: contain;">
+        </div>
+    </div>
+
+    <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleInterval" data-bs-slide="prev">
+        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Previous</span>
+    </button>
+
+    <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleInterval" data-bs-slide="next">
+        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Next</span>
+    </button>
+
+</div>
+
+
+<div class="container my-5">
+    <h4 class="text-center mb-4">Most Popular Products</h4>
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-4 g-4">
+
+        @foreach (var product in Model.MostPopularItems)
+        {
+            <div class="col text-center">
+                <div class="product-card p-3 rounded shadow-sm">
+                    <img src="@product.Image"
+                         class="img-fluid mb-2"
+                         style="height: 150px; cursor: pointer;"
+                         alt="@product.Name"
+                         data-bs-toggle="modal"
+                         data-bs-target="#itemModal-@product.Id" />
+                        <h6 data-bs-toggle="modal"
+                            data-bs-target="#itemModal-@product.Id">
+                            @product.Name
+                        </h6>
+                    <p class="mb-0 text-muted">
+                        <span class="fw-bold" data-bs-toggle="modal"
+                         data-bs-target="#itemModal-@product.Id">₱@product.Price.ToString("N2")</span>
+                    </p>
+                </div>
+            </div>
+
+            <div class="modal fade" id="itemModal-@product.Id" tabindex="-1" aria-labelledby="itemModalLabel-@product.Id" aria-hidden="true">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="itemModalLabel-@product.Id">@product.Name</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+
+                        <div class="modal-body">
+                            @if (product.Quantity > 0)
+                            {
+                                <p style="color:green"><strong>On Stock: @product.Quantity</strong></p>
+                            }
+                            else if (product.Quantity <= 0)
+                            {
+                                <p style="color:red"><strong>No Stock Available</strong></p>
+                            }
+                            <div class="text-center mb-3">
+                                <img src="@product.Image" class="img-fluid rounded" style="max-height: 250px;" alt="@product.Name" />
+                            </div>
+
+                            <p><strong>Name:</strong> @product.Name</p>
+                            <div>
+                                <strong>Description:</strong>
+                                <div style="max-height: 100px; overflow-y: auto; border: 1px solid #ccc; padding: 5px; border-radius: 4px; background-color: #f9f9f9;">
+                                    @product.Description
+                                </div>
+                            </div>
+                            <br />
+                            <p><strong>Price:</strong> ₱@product.Price.ToString("N2")</p>
+                        </div>
+
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+<div class="container my-5">
+    <h4 class="text-center mb-4">Recently Added Products</h4>
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-4 g-4">
+
+        @foreach (var product in Model.RecentProducts)
+        {
+            <div class="col text-center">
+                <div class="product-card p-3 rounded shadow-sm">
+                    <img src="@product.Image"
+                         class="img-fluid mb-2"
+                         style="height: 150px; cursor: pointer;"
+                         alt="@product.Name"
+                         data-bs-toggle="modal"
+                         data-bs-target="#itemModal-@product.Id" />
+                        <h6 data-bs-toggle="modal"
+                            data-bs-target="#itemModal-@product.Id">
+                            @product.Name
+                        </h6>
+                    <p class="mb-0 text-muted">
+                        <span class="fw-bold" data-bs-toggle="modal"
+                         data-bs-target="#itemModal-@product.Id">₱@product.Price.ToString("N2")</span>
+                    </p>
+                </div>
+            </div>
+
+            <div class="modal fade" id="itemModal-@product.Id" tabindex="-1" aria-labelledby="itemModalLabel-@product.Id" aria-hidden="true">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="itemModalLabel-@product.Id">@product.Name</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+
+                        <div class="modal-body">
+                            @if (product.Quantity > 0)
+                            {
+                                <p style="color:green"><strong>On Stock: @product.Quantity</strong></p>
+                            }
+                            else if (product.Quantity <= 0)
+                            {
+                                <p style="color:red"><strong>No Stock Available</strong></p>
+                            }
+                            <div class="text-center mb-3">
+                                <img src="@product.Image" class="img-fluid rounded" style="max-height: 250px;" alt="@product.Name" />
+                            </div>
+
+                            <p><strong>Name:</strong> @product.Name</p>
+                            <div>
+                                <strong>Description:</strong>
+                                <div style="max-height: 100px; overflow-y: auto; border: 1px solid #ccc; padding: 5px; border-radius: 4px; background-color: #f9f9f9;">
+                                    @product.Description
+                                </div>
+                            </div>
+                            <br />
+                            <p><strong>Price:</strong> ₱@product.Price.ToString("N2")</p>
+                        </div>
+
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+            }
+    </div>
+</div>
+</div>

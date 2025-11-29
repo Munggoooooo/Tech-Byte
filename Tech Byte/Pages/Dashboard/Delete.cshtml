@@ -1,0 +1,36 @@
+﻿@page
+@model Tech_Byte.Pages.Dashboard.DeleteModel
+@{
+    ViewData["Title"] = "Dashboard";
+}
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize(Roles = "Admin")]
+
+<style>
+    body {
+        background-color: whitesmoke;
+    }
+</style>
+
+<div class="container my-5">
+<h2>Delete Item</h2>
+<p>Are you sure?</p>
+
+<table class="table table-striped">
+        <tr><th>Image</th></th><th>Name</th><th>Category</th><th>Description</th></th><th>Quantity</th><th>Price</th></tr>
+        <tr>
+            <td><img src="@Model.Item.Image" height="auto" width="200" /></td>
+            <td>@Model.Item.Name</td>
+            <td>@Model.Item.Category</td>
+            <td>@Model.Item.Description</td>
+            <td>@Model.Item.Quantity</td>
+            <td>₱@Model.Item.Price.ToString("N2")</td>
+        </tr>
+</table>
+
+<form method="post">
+    <input type="hidden" asp-for="Item.Id" />
+    <button class="btn btn-danger" type="submit">Delete</button>
+    <a class="btn btn-secondary" asp-page="/Dashboard/Inventory">Back</a>
+</form>
+</div>

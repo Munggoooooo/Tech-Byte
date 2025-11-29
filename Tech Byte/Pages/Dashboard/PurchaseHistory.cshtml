@@ -1,0 +1,83 @@
+﻿@page
+@model Tech_Byte.Pages.Dashboard.PurchaseHistoryModel
+@{
+    ViewData["Title"] = "Dashboard";
+}
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize(Roles = "Admin,Member")]
+
+<div class="container my-5">
+    <h2 class="my-4">Purchase History</h2>
+
+    <div class="container">
+        <div class="row d-flex justify-content-between align-items-center" style="padding: 0;">
+            <div class="col-auto">
+                <a></a>
+            </div>
+            <div class="col-auto">
+                <!-- Search Form -->
+                <form method="get" class="d-flex align-items-center mb-3">
+                    <button type="submit" class="btn btn-primary me-2">Search</button>
+                    <input type="text" id="purchaseFilter" name="SearchTerm" class="form-control mx-2"
+                           placeholder="Search Action, Name, Category, or Date..."
+                           value="@Model.SearchTerm" style="width: 300px;" />
+                    @if (!string.IsNullOrEmpty(Model.SearchTerm))
+                    {
+                        <a href="/Dashboard/PurchaseHistory" class="btn btn-secondary ms-2">Clear</a>
+                    }
+                </form>
+            </div>
+        </div>
+    </div>
+
+    @if (!Model.Purchases.Any())
+    {
+        <p>No purchases found.</p>
+    }
+    else
+    {
+        foreach (var order in Model.Purchases)
+        {
+            <div class="card mb-3">
+                <div class="card-header">
+                    <strong>Customer Name:</strong> @order.CustomerUserName <strong>Customer Email:</strong> @order.CustomerEmail <strong>Order Date:</strong> @order.Date.ToLocalTime().ToString("MMMM dd, yyyy - hh:mm tt") <strong>Order ID:</strong> @order.OrderId
+                    <span class="float-end"><strong>Total:</strong> ₱@order.Total.ToString("N2")</span>
+                </div>
+                <ul class="list-group list-group-flush">
+                    @foreach (var item in order.Items)
+                    {
+                        
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <img src="@item.Image" alt="@item.Name" style="width: 50px; height: 50px; object-fit: contain;" class="me-2" />
+                                <span>@item.Name</span>
+                                <span class="text-muted ms-2">(@item.Quantity)</span>
+                            </div>
+                            <span>₱@item.Total.ToString("N2")</span>
+                        </li>
+                    }
+                </ul>
+            </div>
+        }
+    }
+</div>
+
+<script>
+    const filterInput = document.getElementById("purchaseFilter");
+    filterInput.addEventListener("input", function() {
+        const filter = this.value.toLowerCase();
+        const cards = document.querySelectorAll(".purchase-card");
+
+        cards.forEach(card => {
+            const customerName = card.querySelector(".card-header").textContent.toLowerCase();
+            const itemNames = Array.from(card.querySelectorAll(".item-name")).map(el => el.textContent.toLowerCase()).join(" ");
+
+            // Show card if filter matches customer, order ID, or item names
+            if (customerName.includes(filter) || itemNames.includes(filter)) {
+                card.style.display = "";
+            } else {
+                card.style.display = "none";
+            }
+        });
+    });
+</script>

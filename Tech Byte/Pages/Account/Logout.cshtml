@@ -1,0 +1,39 @@
+﻿@page
+@model Tech_Byte.Pages.Account.LogoutModel
+@using System.Security.Claims
+@{
+    ViewData["Title"] = "Logout";
+    var username = User.Identity.IsAuthenticated ? User.Identity.Name : "User";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+
+            <div class="card shadow-sm border-0">
+                <div class="card-body text-center p-4">
+
+                    <h3 class="mb-3 text-danger">
+                        <i class="bi bi-box-arrow-right"></i> Logout
+                    </h3>
+
+                    <p class="text-secondary mb-4">
+                        Are you sure you want to log out, <strong>@username</strong>?
+                    </p>
+
+                    <form method="post">
+                        <button class="btn btn-danger w-100 mb-2" type="submit">
+                            <i class="bi bi-door-open"></i> Yes, Logout
+                        </button>
+                    </form>
+
+                    <a asp-page="/Index" class="btn btn-outline-secondary w-100">
+                        <i class="bi bi-arrow-left"></i> Cancel
+                    </a>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>

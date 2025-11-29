@@ -1,0 +1,542 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - TechByte</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/Tech_Byte.styles.css" asp-append-version="true" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-pVnD4zDkz0e6rZvj+QzFJZKTTnXJr4LZ9QvvRv3H3+h5ZiwjD+OQGcvKj9Wa5oVwJhScTRnT9+RXYKXYl1hxgg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+</head>
+<body>
+    <header>
+        @{
+            var currentPage = ViewContext.RouteData.Values["page"]?.ToString() ?? "";
+        }
+
+        <style>
+            /* Products Category Dropdown*/
+            .dropdown:hover .mega-menu {
+                display: flex;
+            }
+
+            /*Mega Menu*/
+            .mega-menu {
+                display: none;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                width: 600px;
+                background: white;
+                border: 1px solid #ccc;
+                padding: 20px;
+                box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+                z-index: 1000;
+            }
+
+            .mega-category {
+                width: 200px;
+                border-right: 1px solid #eee;
+                padding-right: 20px;
+            }
+
+                .mega-category ul,
+                .mega-subcategory ul {
+                    list-style: none;
+                }
+
+                    .mega-category ul li,
+                    .mega-subcategory ul li {
+                        margin-bottom: 10px;
+                    }
+
+                .mega-category h4 {
+                    margin-bottom: 10px;
+                }
+
+                .mega-category ul li {
+                    display: block;
+                    width: 100%;
+                    color: #333;
+                    text-decoration: none;
+                    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+                    margin-left: -52px;
+                    width: 150%;
+                }
+
+                .mega-category .arrow {
+                    color: #666;
+                    font-weight: bolder;
+                    font-size: large;
+                    margin-left: 10px; /* Optional spacing between text and arrow */
+                    cursor: default;
+                }
+
+                .mega-category .category {
+                    cursor: default;
+                }
+
+
+                .mega-category a {
+                    display: flex; /* Make text and arrow share a row */
+                    justify-content: space-between; /* Push arrow to the far right */
+                    align-items: center; /* Vertically center both */
+                    width: 100%;
+                    padding: 10px 15px;
+                    color: #333;
+                    text-decoration: none;
+                    font-size: large;
+                    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+                }
+
+                .mega-category ul li a:hover {
+                    background-color: #ccc;
+                    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+                }
+
+            .mega-subcategory {
+                display: none;
+                padding-left: 20px;
+                flex: 1;
+            }
+
+                .mega-subcategory h4 {
+                    margin-bottom: 10px;
+                }
+
+                .mega-subcategory ul {
+                    list-style: none;
+                    column-count: 2;
+                    column-gap: 20px;
+                }
+
+                    .mega-subcategory ul li a {
+                        display: block;
+                        padding: 4px 0;
+                        color: #555;
+                        text-decoration: none;
+                        font-size: 16px;
+                    }
+
+                        .mega-subcategory ul li a:hover {
+                            color: #000;
+                            text-decoration: underline;
+                        }
+
+                /*Side Nav*/
+
+            /* Side Nav Styles */
+            .sidenav {
+                height: 100vh; /* Full-height */
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 250px;
+                background-color: #f8f9fa;
+                padding-top: 20px;
+                box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+            }
+
+                .sidenav .nav-link {
+                    color: #333;
+                    padding: 10px 15px;
+                    font-size: 16px;
+                    font-weight: 500;
+                }
+
+                    .sidenav .nav-link.active {
+                        background-color: #007bff;
+                        color: white;
+                    }
+
+                    .sidenav .nav-link:hover {
+                        background-color: #e2e6ea;
+                    }
+        </style>
+
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-dark bg-dark mb-3">
+            <div class="container">
+                <a asp-page="/Index"><img src="~/images/TechByte.png" alt="TechByte Logo" width="40" height="40" class="d-inline-block align-text-top me-2" style="filter: invert(1) brightness(1000%);"></a>
+                <a class="navbar-brand" asp-area="" asp-page="/Index" style="font-weight: 800;">TECH BYTE</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                        aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                    @if (User.Identity.IsAuthenticated)
+                    {
+                        <ul class="navbar-nav flex-grow-1">
+                            @if (User.IsInRole("Member"))
+                            {
+                                //Home
+                                <li class="nav-item">
+                                    <a class="nav-link @(currentPage == "/Index" ? "active" : "")" asp-page="/Index">Home</a>
+                                </li>
+
+                                //Products
+                                <li class="nav-item dropdown">
+                                    <a class="nav-link @(currentPage == "/Products" ? "active" : "")" asp-page="/Products">Products ▾</a>
+                                    <div class="mega-menu">
+                                        <div class="mega-category">
+                                            <h4>Category</h4>
+                                            <ul>
+                                                <li data-target="Component"><a class="category">Components<span class="arrow">></span></a></li>
+                                                <li data-target="Peripherals"><a class="category">Peripherals<span class="arrow">></span></a></li>
+                                                <li data-target="Accessories"><a class="category">Accessories<span class="arrow">></span></a></li>
+                                                <li><a asp-page="/Products">Show All</a></li>
+                                            </ul>
+                                        </div>
+                                        <div class="default mega-subcategory" id="Component">
+                                            <h4>Components</h4>
+                                            <ul>
+                                                <li><a href="/Products?category=Graphics Card">Graphics Card</a></li>
+                                                <li><a href="/Products?category=Memory">Memory</a></li>
+                                                <li><a href="/Products?category=Motherboard">Motherboard</a></li>
+                                                <li><a href="/Products?category=Processor">Processor</a></li>
+                                                <li><a href="/Products?category=Power Supply">Power Supply</a></li>
+                                                <li><a href="/Products?category=Storage">Storage</a></li>
+                                            </ul>
+                                        </div>
+                                        <div class="mega-subcategory" id="Peripherals">
+                                            <h4>Peripherals</h4>
+                                            <ul>
+                                                <li><a href="/Products?category=Keyboard">Keyboard</a></li>
+                                                <li><a href="/Products?category=Mouse">Mouse</a></li>
+                                                <li><a href="/Products?category=Headset">Headset</a></li>
+                                                <li><a href="/Products?category=Monitor">Monitor</a></li>
+                                                <li><a href="/Products?category=Microphone">Microphone</a></li>
+                                            </ul>
+                                        </div>
+                                        <div class="mega-subcategory" id="Accessories">
+                                            <h4>Accesories</h4>
+                                            <ul>
+                                                <li><a href="/Products?category=Cable">Cable</a></li>
+                                                <li><a href="/Products?category=Mat">Gaming Mat</a></li>
+                                                <li><a href="/Products?category=Enclosure">Enclosure</a></li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </li>
+
+                                //Cart
+                                <li class="nav-item">
+                                    <a class="nav-link @(currentPage == "/Cart" ? "active" : "")" asp-page="/Cart">
+                                        <i class="fa-solid fa-cart-shopping"></i>
+                                        Cart
+                                        @await Component.InvokeAsync("CartBadge")
+                                    </a>
+
+                                </li>
+
+                                //Contact Us
+                                <li class="nav-item">
+                                    <a class="nav-link @(currentPage == "/AboutUs" ? "active" : "")" asp-page="/AboutUs">About Us</a>
+                                </li>
+                            }
+                            @if (User.IsInRole("Admin"))
+                            {
+                                var dashboardPages = new[] { "/Dashboard/Sales", "/Dashboard/Inventory", "/Dashboard/Transactions", "/Dashboard/PurchaseHistory", "/Dashboard/ContactInquiries", "/Dashboard/Create", "/Dashboard/Edit", "/Dashboard/Delete" };
+
+                                //Dashboard
+                                <li class="nav-item">
+                                    <a class="nav-link @(dashboardPages.Contains(currentPage) ? "active" : "")" asp-page="/Dashboard/Sales">Dashboard</a>
+                                </li>
+
+                                //Home
+                                <li class="nav-item">
+                                    <a class="nav-link @(currentPage == "/Index" ? "active" : "")" asp-page="/Index">Home</a>
+                                </li>
+
+                                //Products
+                                <li class="nav-item dropdown">
+                                    <a class="nav-link @(currentPage == "/Products" ? "active" : "")" asp-page="/Products">Products ▾</a>
+                                    <div class="mega-menu">
+                                        <div class="mega-category">
+                                            <h4>Category</h4>
+                                            <ul>
+                                                <li data-target="Component"><a class="category">Components<span class="arrow">></span></a></li>
+                                                <li data-target="Peripherals"><a class="category">Peripherals<span class="arrow">></span></a></li>
+                                                <li data-target="Accessories"><a class="category">Accessories<span class="arrow">></span></a></li>
+                                                <li><a asp-page="/Products">Show All</a></li>
+                                            </ul>
+                                        </div>
+                                        <div class="default mega-subcategory" id="Component">
+                                            <h4>Components</h4>
+                                            <ul>
+                                                <li><a href="/Products?category=Graphics Card">Graphics Card</a></li>
+                                                <li><a href="/Products?category=Memory">Memory</a></li>
+                                                <li><a href="/Products?category=Motherboard">Motherboard</a></li>
+                                                <li><a href="/Products?category=Processor">Processor</a></li>
+                                                <li><a href="/Products?category=Power Supply">Power Supply</a></li>
+                                                <li><a href="/Products?category=Storage">Storage</a></li>
+                                            </ul>
+                                        </div>
+                                        <div class="mega-subcategory" id="Peripherals">
+                                            <h4>Peripherals</h4>
+                                            <ul>
+                                                <li><a href="/Products?category=Keyboard">Keyboard</a></li>
+                                                <li><a href="/Products?category=Mouse">Mouse</a></li>
+                                                <li><a href="/Products?category=Headset">Headset</a></li>
+                                                <li><a href="/Products?category=Monitor">Monitor</a></li>
+                                                <li><a href="/Products?category=Microphone">Microphone</a></li>
+                                            </ul>
+                                        </div>
+                                        <div class="mega-subcategory" id="Accessories">
+                                            <h4>Accesories</h4>
+                                            <ul>
+                                                <li><a href="/Products?category=Cable">Cable</a></li>
+                                                <li><a href="/Products?category=Mat">Gaming Mat</a></li>
+                                                <li><a href="/Products?category=Enclosure">Enclosure</a></li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </li>
+
+                                //Cart
+                                <li class="nav-item">
+                                    <a class="nav-link @(currentPage == "/Cart" ? "active" : "")" asp-page="/Cart">
+                                        <i class="fa-solid fa-cart-shopping"></i>
+                                        Cart
+                                        @await Component.InvokeAsync("CartBadge")
+                                    </a>
+
+                                </li>
+
+                                //Contact Us
+                                <li class="nav-item">
+                                    <a class="nav-link @(currentPage == "/AboutUs" ? "active" : "")" asp-page="/AboutUs">About Us</a>
+                                </li>
+
+                            }
+                        </ul>
+                        <ul class="navbar-nav ms-auto">
+
+                            <li class="nav-item">
+                                <a class="nav-link @(currentPage == "/Account/Profile" ? "active" : "")" asp-page="/Account/Profile"><i class="fa-solid fa-user"></i> Hello, @User.Identity.Name</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link @(currentPage == "/Account/Logout" ? "active" : "")" asp-page="/Account/Logout"><i class="fa-solid fa-arrow-right-from-bracket"></i> Logout</a>
+                            </li>
+                        </ul>
+                        } else {
+
+                            <ul class="navbar-nav flex-grow-1">
+                                <li class="nav-item">
+                                    <a class="nav-link @(currentPage == "/Index" ? "active" : "")" asp-page="/Index">Home</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link @(currentPage == "/Products" ? "active" : "")" asp-page="/Products">Products ▾</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link @(currentPage == "/Cart" ? "active" : "")" asp-page="/Cart"><i class="fa-solid fa-cart-shopping"></i>Cart</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link @(currentPage == "/Developers" ? "active" : "")" asp-page="/Developers">Developers</a>
+                                </li>
+                            </ul>
+
+                            <ul class="navbar-nav ms-auto">
+                                <li class="nav-item">
+                                    <a class="nav-link @(currentPage == "/Account/Login" ? "active" : "")" asp-page="/Account/Login">
+                                        <i class="fa-solid fa-user"></i> Login
+                                    </a>
+                                </li>
+                            </ul>
+                        }
+                </div>
+            </div>
+        </nav>
+
+        @{
+            var allowedPages = new[] { "/Dashboard/Accounts", "/Dashboard/Transactions/AccountLogs", "/Dashboard/Sales", "/Dashboard/Inventory", "/Dashboard/Transactions/ItemLogs", "/Dashboard/PurchaseHistory", "/Dashboard/ContactInquiries" };
+        }
+        @if (allowedPages.Contains(currentPage))
+        {
+            <style>
+                body {
+                    background-color: whitesmoke;
+                }
+            </style>
+
+            <style>
+                .dashboardservices {
+                    display: flex;
+                    justify-content: space-around;
+                    gap: 30px;
+                    flex-wrap: wrap;
+                }
+
+                .dashboardservice {
+                    text-align: center;
+                    background-color: #fff;
+                    border-radius: 8px;
+                    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+                    padding: 20px;
+                    width: 200px;
+                }
+
+                    .dashboardservice i {
+                        width: 100%;
+                        height: auto;
+                        border-radius: 50%;
+                        margin-bottom: 20px;
+                    }
+
+                h3 {
+                    font-size: 1.5rem;
+                    margin-bottom: 10px;
+                }
+
+                p {
+                    font-size: 1rem;
+                    color: #000;
+                    margin-bottom: 6px;
+                }
+            </style>
+
+
+            <div class="container my-2">
+
+                <div class="col justify-content-center">
+                    <h2 class="mb-5">Dashboard</h2>
+
+                    <!-- Display Metrics -->
+                    <div class="row justify-content-center mb-5">
+
+                        <div class="dashboardservices">
+
+                            @await Component.InvokeAsync("TotalUsers")
+
+                            @await Component.InvokeAsync("TotalSales")
+
+                            @await Component.InvokeAsync("TotalItems")
+
+                            @await Component.InvokeAsync("TotalOrders")
+
+                        </div>
+                    </div>
+
+                    <!-- Nav Metrics -->
+                    <div class="row justify-content-center">
+                        <ul class="nav nav-tabs">
+                            <li class="nav-item">
+                                <a class="nav-link text-black @(currentPage == "/Dashboard/Accounts" ? "active bg-black text-white" : "")" asp-page="/Dashboard/Accounts">Accounts</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-black @(currentPage == "/Dashboard/Sales" ? "active bg-black text-white" : "")" asp-page="/Dashboard/Sales">Sales</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-black @(currentPage == "/Dashboard/Inventory" ? "active bg-black text-white" : "")" asp-page="/Dashboard/Inventory">Inventory</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-black @(currentPage == "/Dashboard/PurchaseHistory" ? "active bg-black text-white" : "")" asp-page="/Dashboard/PurchaseHistory">Purchase History</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-black @(currentPage == "/Dashboard/Transactions/ItemLogs" ? "active bg-black text-white" : "")" asp-page="/Dashboard/Transactions/ItemLogs">Transactions</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-black @(currentPage == "/Dashboard/ContactInquiries" ? "active bg-black text-white" : "")" asp-page="/Dashboard/ContactInquiries">Notification @await Component.InvokeAsync("NotificationBadge")</a>
+                            </li>
+                        </ul>
+                    </div>
+
+                </div>
+
+            </div>
+        }
+
+    </header>
+
+    <div class="container">
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
+    </div>
+
+    <footer class="border-top footer text-muted">
+        <div class="container">
+            &copy; 2025 - TechByte - <a asp-area="" asp-page="/Privacy" style="text-decoration: none;">Privacy</a>
+        </div>
+    </footer>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="https://kit.fontawesome.com/e018a29991.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const categoryItems = document.querySelectorAll('.mega-category li[data-target]');
+            const subcategories = document.querySelectorAll('.mega-subcategory');
+            const defaultSub = document.querySelector('.mega-subcategory.default');
+            const megaMenu = document.querySelector('.mega-menu');
+
+            // Function to show a specific subcategory and hide others
+            function showSubcategory(targetId) {
+                subcategories.forEach(sub => {
+                    sub.style.display = (sub.id === targetId) ? 'block' : 'none';
+                });
+            }
+
+            // Initially show default subcategory if it exists
+            if (defaultSub) {
+                showSubcategory(defaultSub.id);
+            }
+
+            // Handle hover on category list items
+            categoryItems.forEach(item => {
+                item.addEventListener('mouseenter', () => {
+                    const targetId = item.getAttribute('data-target');
+                    if (targetId) {
+                        showSubcategory(targetId);
+                    }
+                });
+            });
+
+            // On mouse leave of the whole mega menu, reset to default
+            megaMenu.addEventListener('mouseleave', () => {
+                if (defaultSub) {
+                    showSubcategory(defaultSub.id);
+                } else {
+                    // If no default defined, hide all
+                    subcategories.forEach(sub => {
+                        sub.style.display = 'none';
+                    });
+                }
+            });
+        });
+    </script>
+    <script type="module">
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-analytics.js";
+        // TODO: Add SDKs for Firebase products that you want to use
+        // https://firebase.google.com/docs/web/setup#available-libraries
+
+        // Your web app's Firebase configuration
+        // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+        const firebaseConfig = {
+          apiKey: "AIzaSyBNF04QQlzUmyZlF9Z6WUQXatzbTMR3UaQ",
+          authDomain: "techbyte-e937b.firebaseapp.com",
+          projectId: "techbyte-e937b",
+          storageBucket: "techbyte-e937b.firebasestorage.app",
+          messagingSenderId: "1022503589804",
+          appId: "1:1022503589804:web:56011e8122a69c18e68c09",
+          measurementId: "G-KX8RKWN3CW"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
+    </script>
+
+
+    @await RenderSectionAsync("Scripts", required: false)
+    @section Scripts {
+        <partial name="_ValidationScriptsPartial" />
+    }
+</body>
+</html>

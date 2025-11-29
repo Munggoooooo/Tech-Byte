@@ -1,0 +1,158 @@
+﻿@page
+@model Tech_Byte.Pages.CartModel
+@{
+    ViewData["Title"] = "Shopping Cart";
+}
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize(Roles = "Admin,Member")]
+
+<style>
+    body {
+        background-color: whitesmoke;
+    }
+</style>
+
+<div class="container my-5">
+    <h2 class="text-center mb-4">Shopping Cart</h2>
+
+    @if (TempData["Message"] != null)
+    {
+        <div class="alert alert-info text-center">@TempData["Message"]</div>
+    }
+
+    @if (!Model.CartItems.Any())
+    {
+        <p class="text-center text-muted">Your cart is empty.</p>
+    }
+    else
+    {
+        <div class="container text-center">
+                
+                    <table class="table text-center align-middle">
+                        <thead>
+                            <tr>
+                                <th>Product</th>
+                                <th>Price</th>
+                                <th>Quantity</th>
+                                <th>Subtotal</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                <tbody>
+                    @foreach (var item in Model.CartItems)
+                    {
+                        <tr>
+                            <td class="text-start">
+                                <img src="@item.Image" style="width:50px; height:50px; object-fit:contain;" class="me-2" />
+                                <span>@item.Name</span>
+                            </td>
+                            <td class="item-price">₱@item.Price.ToString("N2")</td>
+                            <td>
+
+                                <!-- Minus Button -->
+                                <form method="post" asp-page-handler="Decrease" class="d-inline">
+                                    <input type="hidden" name="id" value="@item.ItemId" />
+                                    <button type="submit" class="btn btn-secondary btn-sm" style="font-size: x-small;" @(item.Quantity <= 1 ? "disabled" : "")>
+                                        −
+                                    </button>
+                                </form>
+
+                                <input type="number"
+                                       class="form-control text-center quantity-input"
+                                       style="width:70px; display:inline-block;"
+                                       min="1"
+                                       max="@item.MaxQuantity"
+                                       value="@item.Quantity"
+                                       data-max="@item.MaxQuantity"
+                                       data-item-id="@item.ItemId"
+                                       id="visible-qty-@item.ItemId"
+                                       onkeydown="return ['ArrowUp','ArrowDown','Tab'].includes(event.key);"
+                                       onpaste="return false;" />
+
+                                <!-- Plus Button -->
+                                <form method="post" asp-page-handler="Increase" class="d-inline">
+                                    <input type="hidden" name="id" value="@item.ItemId" />
+                                    <button type="submit" class="btn btn-secondary btn-sm" style="font-size: x-small;" @(item.Quantity >= item.MaxQuantity ? "disabled" : "")>
+                                        +
+                                    </button>
+                                </form>
+
+                            </td>
+                            <td class="item-total">₱@item.Total.ToString("N2")</td> <!-- Add class -->
+                            <td>
+                                <form method="post" asp-page-handler="Remove" class="d-inline">
+                                    <input type="hidden" name="id" value="@item.ItemId" />
+                                    <button type="submit" class="btn btn-danger btn-sm">Remove</button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+
+                </tbody>
+
+                <tfoot>
+                    <tr>
+                        <td colspan="3" class="text-end fw-bold">Total:</td>
+                        <td class="fw-bold" id="subtotal">₱@Model.Subtotal.ToString("N2")</td>
+                    </tr>
+                </tfoot>
+
+
+                    </table>
+                <!-- Separate form for Place Order -->
+                <form method="post" asp-page-handler="PlaceOrder" class="text-end mt-3">
+                @foreach (var item in Model.CartItems)
+                {
+                    <input type="hidden" name="quantities[@item.ItemId]" id="hidden-qty-@item.ItemId" value="@item.Quantity" />
+                }
+                    <button type="submit" class="btn btn-primary">Place Order</button>
+                </form>
+            </div>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        document.querySelectorAll('.quantity-input').forEach(function (input) {
+            input.addEventListener('change', updateTotals);
+            input.addEventListener('input', updateTotals);
+        });
+
+        function updateTotals() {
+            let subtotal = 0;
+
+            document.querySelectorAll('.quantity-input').forEach(function (input) {
+                const row = input.closest('tr');
+                const price = parseFloat(row.querySelector('.item-price').textContent.replace('₱', '').replace(',', ''));
+                const quantity = parseInt(input.value) || 0;
+                const max = parseInt(input.getAttribute('max')) || 1;
+
+                // Ensure quantity does not exceed max (just in case)
+                if (quantity > max) {
+                    input.value = max;
+                }
+
+                const total = price * quantity;
+                row.querySelector('.item-total').textContent = '₱' + total.toFixed(2);
+                subtotal += total;
+            });
+
+            // Update subtotal display
+            document.getElementById('subtotal').textContent = '₱' + subtotal.toFixed(2);
+        }
+    </script>
+
+    <script>
+        document.querySelectorAll('.quantity-input').forEach(function(input) {
+            input.addEventListener('input', function () {
+                const itemId = input.getAttribute('data-item-id');
+                const hiddenInput = document.getElementById('hidden-qty-' + itemId);
+                if (hiddenInput) {
+                    hiddenInput.value = input.value;
+                }
+            });
+        });
+    </script>
+
+
+}
